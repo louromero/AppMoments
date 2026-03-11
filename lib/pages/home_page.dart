@@ -28,7 +28,6 @@ class _IniciarSesionPageState extends State<IniciarSesionPage> {
           await MomentoDatabase.instance.loginUsuario(email, password);
 
       if (usuario != null) {
-        // 👇 GUARDAMOS EL USUARIO EN SESIÓN
         final session = Provider.of<SessionNotifier>(context, listen: false);
         session.login(usuario);
 
