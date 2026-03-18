@@ -42,11 +42,43 @@ class _CrearAlbumPageState extends State<CrearAlbumPage> {
 
   Future<void> _seleccionarImagen() async {
     final picker = ImagePicker();
-    final XFile? picked = await picker.pickImage(source: ImageSource.gallery);
 
-    if (picked != null) {
-      setState(() => _imagenSeleccionada = File(picked.path));
-    }
+    // Diálogo para elegir entre Cámara o Galería
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Galería'),
+                onTap: () async {
+                  final XFile? picked =
+                      await picker.pickImage(source: ImageSource.gallery);
+                  if (picked != null) {
+                    setState(() => _imagenSeleccionada = File(picked.path));
+                  }
+                  if (mounted) Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Cámara'),
+                onTap: () async {
+                  final XFile? picked =
+                      await picker.pickImage(source: ImageSource.camera);
+                  if (picked != null) {
+                    setState(() => _imagenSeleccionada = File(picked.path));
+                  }
+                  if (mounted) Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _crearAlbum() async {
@@ -61,7 +93,8 @@ class _CrearAlbumPageState extends State<CrearAlbumPage> {
         _direccionController.text.isEmpty ||
         _ubicacionSeleccionada == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Completa todos los campos (incluyendo el mapa)")),
+        const SnackBar(
+            content: Text("Completa todos los campos (incluyendo el mapa)")),
       );
       return;
     }
@@ -88,8 +121,10 @@ class _CrearAlbumPageState extends State<CrearAlbumPage> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(15),
       child: _imagenSeleccionada != null
-          ? Image.file(_imagenSeleccionada!, height: 180, width: double.infinity, fit: BoxFit.cover)
-          : Image.asset('assets/images/cumple.jpg', height: 180, width: double.infinity, fit: BoxFit.cover),
+          ? Image.file(_imagenSeleccionada!,
+              height: 180, width: double.infinity, fit: BoxFit.cover)
+          : Image.asset('assets/images/cumple.jpg',
+              height: 180, width: double.infinity, fit: BoxFit.cover),
     );
   }
 
@@ -97,7 +132,8 @@ class _CrearAlbumPageState extends State<CrearAlbumPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Ubicación exacta (Toca el mapa)", style: TextStyle(fontWeight: FontWeight.bold)),
+        const Text("Ubicación exacta (Toca el mapa)",
+            style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         Container(
           height: 250,
@@ -112,7 +148,8 @@ class _CrearAlbumPageState extends State<CrearAlbumPage> {
               options: MapOptions(
                 initialCenter: const LatLng(-31.5375, -68.5364),
                 initialZoom: 13,
-                onTap: (_, point) => setState(() => _ubicacionSeleccionada = point),
+                onTap: (_, point) =>
+                    setState(() => _ubicacionSeleccionada = point),
               ),
               children: [
                 TileLayer(
@@ -126,7 +163,8 @@ class _CrearAlbumPageState extends State<CrearAlbumPage> {
                         point: _ubicacionSeleccionada!,
                         width: 40,
                         height: 40,
-                        child: const Icon(Icons.location_pin, size: 40, color: Colors.red),
+                        child: const Icon(Icons.location_pin,
+                            size: 40, color: Colors.red),
                       ),
                     ],
                   ),
@@ -141,7 +179,9 @@ class _CrearAlbumPageState extends State<CrearAlbumPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Nuevo Álbum"), backgroundColor: const Color.fromARGB(255, 255, 242, 221)),
+      appBar: AppBar(
+          title: const Text("Nuevo Álbum"),
+          backgroundColor: const Color.fromARGB(255, 255, 242, 221)),
       backgroundColor: const Color.fromARGB(255, 255, 242, 221),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -151,19 +191,28 @@ class _CrearAlbumPageState extends State<CrearAlbumPage> {
             const Text("Título", style: TextStyle(fontWeight: FontWeight.bold)),
             TextField(controller: _tituloController),
             const SizedBox(height: 15),
-            const Text("Clave privada", style: TextStyle(fontWeight: FontWeight.bold)),
-            TextField(controller: _claveController, decoration: const InputDecoration(hintText: "Ej: 1234")),
+            const Text("Clave privada",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            TextField(
+                controller: _claveController,
+                decoration: const InputDecoration(hintText: "Ej: 1234")),
             const SizedBox(height: 15),
-            const Text("Dirección", style: TextStyle(fontWeight: FontWeight.bold)),
-            TextField(controller: _direccionController, decoration: const InputDecoration(hintText: "Ej: Calle Falsa 123")),
+            const Text("Dirección",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            TextField(
+                controller: _direccionController,
+                decoration:
+                    const InputDecoration(hintText: "Ej: Calle Falsa 123")),
             const SizedBox(height: 15),
-            const Text("Fecha del evento", style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text("Fecha del evento",
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 5),
             GestureDetector(
               onTap: _seleccionarFecha,
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(color: Colors.grey.shade400),
@@ -173,13 +222,19 @@ class _CrearAlbumPageState extends State<CrearAlbumPage> {
                   _fechaSeleccionada == null
                       ? "Seleccionar fecha"
                       : "${_fechaSeleccionada!.day}/${_fechaSeleccionada!.month}/${_fechaSeleccionada!.year}",
-                  style: TextStyle(color: _fechaSeleccionada == null ? Colors.grey : Colors.black),
+                  style: TextStyle(
+                      color: _fechaSeleccionada == null
+                          ? Colors.grey
+                          : Colors.black),
                 ),
               ),
             ),
             const SizedBox(height: 20),
             _buildImagenPreview(),
-            TextButton.icon(onPressed: _seleccionarImagen, icon: const Icon(Icons.image), label: const Text("Cambiar portada")),
+            TextButton.icon(
+                onPressed: _seleccionarImagen,
+                icon: const Icon(Icons.image),
+                label: const Text("Cambiar portada")),
             const SizedBox(height: 20),
             _buildMapaGratis(),
             const SizedBox(height: 30),
@@ -190,10 +245,12 @@ class _CrearAlbumPageState extends State<CrearAlbumPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30)),
                   padding: const EdgeInsets.symmetric(vertical: 15),
                 ),
-                child: const Text("CREAR ÁLBUM", style: TextStyle(fontWeight: FontWeight.bold)),
+                child: const Text("CREAR ÁLBUM",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ),
           ],

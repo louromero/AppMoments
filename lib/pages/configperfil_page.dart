@@ -42,19 +42,65 @@ class _ConfigPerfilPageState extends State<ConfigPerfilPage> {
 
   Future<void> _seleccionarImagen() async {
     final picker = ImagePicker();
-    final XFile? pickedFile =
-        await picker.pickImage(source: ImageSource.gallery);
 
-    if (pickedFile != null) {
-      setState(() {
-        _nuevaImagen = File(pickedFile.path);
-      });
+    // Función auxiliar para actualizar el estado
+    void actualizarImagen(XFile? pickedFile) {
+      if (pickedFile != null) {
+        setState(() {
+          _nuevaImagen = File(pickedFile.path);
+        });
+      }
     }
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              const ListTile(
+                title: Text(
+                  "Cambiar foto de perfil",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library, color: Colors.orange),
+                title: const Text('Elegir de la galería'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final XFile? pickedFile = await picker.pickImage(
+                    source: ImageSource.gallery,
+                    imageQuality: 70, // Ideal para fotos de perfil
+                  );
+                  actualizarImagen(pickedFile);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt, color: Colors.orange),
+                title: const Text('Tomar una foto'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final XFile? pickedFile = await picker.pickImage(
+                    source: ImageSource.camera,
+                    imageQuality: 70, // Reducimos peso para el perfil
+                  );
+                  actualizarImagen(pickedFile);
+                },
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _guardarCambios() async {
-    final session =
-        Provider.of<SessionNotifier>(context, listen: false);
+    final session = Provider.of<SessionNotifier>(context, listen: false);
 
     final usuarioActual = session.usuarioActual;
 
@@ -66,9 +112,7 @@ class _ConfigPerfilPageState extends State<ConfigPerfilPage> {
       apellido: _apellidoController.text,
       correo: _correoController.text,
       contrasena: usuarioActual.contrasena,
-      fotoPerfil: _nuevaImagen != null
-          ? _nuevaImagen!.path
-          : _imagenActual,
+      fotoPerfil: _nuevaImagen != null ? _nuevaImagen!.path : _imagenActual,
       esAdministrador: usuarioActual.esAdministrador,
     );
 
@@ -123,39 +167,28 @@ class _ConfigPerfilPageState extends State<ConfigPerfilPage> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-
             _buildImagenPerfil(),
-
             const SizedBox(height: 10),
-
             TextButton(
               onPressed: _seleccionarImagen,
               child: const Text("Cambiar Foto"),
             ),
-
             const SizedBox(height: 20),
-
             TextField(
               controller: _nombreController,
               decoration: const InputDecoration(labelText: "Nombre"),
             ),
-
             const SizedBox(height: 10),
-
             TextField(
               controller: _apellidoController,
               decoration: const InputDecoration(labelText: "Apellido"),
             ),
-
             const SizedBox(height: 10),
-
             TextField(
               controller: _correoController,
               decoration: const InputDecoration(labelText: "Correo"),
             ),
-
             const SizedBox(height: 30),
-
             ElevatedButton(
               onPressed: _guardarCambios,
               style: ElevatedButton.styleFrom(
